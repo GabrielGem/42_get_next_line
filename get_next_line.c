@@ -6,45 +6,55 @@
 /*   By: gabrgarc <gabrgarc@42sp.org.br>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/28 11:36:18 by gabrgarc          #+#    #+#             */
-/*   Updated: 2025/09/04 18:14:22 by gabrgarc         ###   ########.fr       */
+/*   Updated: 2025/09/05 18:17:20 by gabrgarc         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-char	*get_next_line(int fd)
+void	hunk_len(t_list *node)
 {
-	static t_list	*node;
-	ssize_t			find_n;
-	char			*line;
+	int		i;
 
-	if (fd < 0 || BUFFER_SIZE == 0)
-		return (NULL);
-	find_n = 0;
-	node = malloc(sizeof(t_list));
-	if (node->content == 0)
-		node->content = NULL;
-	while (find_n == 0)
-		find_n = get_line(&node, fd);
-	fill_array(node);
-	return (line);
+	i = -1;
+	while (node->content[i] != '\n' || node->content[i] != '\0')
+		i++;
+	if (i < BUFFER_SIZE)
+		
 }
 
 // read line creating a nodes
-ssize_t	get_line(t_list **head, int fd)
+int	get_hunk_of_line(t_list *node, int fd)
 {
 	ssize_t	read_bytes;
 
+	read_bytes = 0;
 	node->content = malloc((BUFFER_SIZE + 1) * sizeof(char));
-	while ()
-	{
-		read_bytes = read(fd, node->content, BUFFER_SIZE);
-		if (lstlen(&node, read_bytes))
-			return (1);
-	}
+	node->content[BUFFER_SIZE] = '\0';
+	read_bytes = read(fd, node->content, BUFFER_SIZE);
+	if (read_bytes > 0)
+		hunk_len(node);
 	return (0);
 }
 
+char	*get_next_line(int fd)
+{
+	static t_list	*node;
+	int				find_n;
+	//char			*line;
+
+	if (fd < 0 || BUFFER_SIZE == 0)
+		return (NULL);
+	if (node.i = 0)
+		node = malloc(sizeof(t_list));
+	find_n = 0;
+	while (find_n == 0)
+		find_n = get_hunk_of_line(node, fd);
+	//fill_array(node);
+	return (node->content);
+}
+
+/*
 int	lstlen(t_list *node, ssize_t read_bytes)
 {
 	int			len;
@@ -61,3 +71,4 @@ int	lstlen(t_list *node, ssize_t read_bytes)
 	}
 	return (0);
 }
+*/
