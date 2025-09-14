@@ -3,54 +3,75 @@
 /*                                                        :::      ::::::::   */
 /*   get_next_line.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gabrgarc <gabrgarc@42sp.org.br>            +#+  +:+       +#+        */
+/*   By: gabrgarc <gabrgarc@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/08/28 11:36:18 by gabrgarc          #+#    #+#             */
-/*   Updated: 2025/09/12 19:20:53 by gabrgarc         ###   ########.fr       */
+/*   Created: 2025/09/13 15:47:52 by gabrgarc          #+#    #+#             */
+/*   Updated: 2025/09/14 16:21:50 by gabrgarc         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-int	get_hunk_of_line(t_handle **sewing, int fd)
+char	*get_next_line(int fd)
 {
-	ssize_t	read_bytes;
+	static t_list	*head;
+	char			*line;
+	int				break_line;
+
+	if (fd < 0 || BUFFER_SIZE <= 0)
+	{
+		free_list(&head);
+		return (NULL);
+	}
+	break_line = 0;
+	while (break_line == 0)
+	{
+		if (get_hunk_line(&head, fd))
+			free_list(&head);
+		break_line = get_info_node(&head);
+	}
+	get_line(&head, &line);
+	if (!line)
+		return (free_list(&head));
+	head = check_remain(&head);
+	return (line);
+}
+
+int	get_hunk_line(t_list **head, int fd)
+{
 	t_list	*actual;
 
-	read_bytes = 0;
-	if (*sewing == NULL)
-	{
-		*sewing = malloc(sizeof(t_handle));
-		(*sewing)->head = malloc(sizeof(t_list));
-		(*sewing)->tail = (*sewing)->head;
-	}
-	actual = (*sewing)->tail;
-	actual->content = malloc((BUFFER_SIZE + 1) * sizeof(char));
-	read_bytes = read(fd, actual->content, BUFFER_SIZE);
-	actual->content[read_bytes] = '\0';
-	if (hunk_analysis(actual))
-	{
-		actual->next = malloc(sizeof(t_list));
+	if (!*head)
+		*head = malloc(sizeof(t_list));
+	if (!*head)
 		return (1);
-	}
-	actual->next = malloc(sizeof(t_list));
-	(*sewing)->tail = actual->next;
+	actual = *head;
+	while (actual->next != NULL)
+		actual = actual->next;
+	actual->content = malloc((BUFFER_SIZE + 1) * sizeof(char));
+	if (!actual->content)
+		return (1);
+	actual->read_bytes = read(fd, actual->content, BUFFER_SIZE);
+	if (actual->read_bytes < 0)
+		return (1);
 	return (0);
 }
 
-char	*get_next_line(int fd)
+ssize_t	get_info_node(t_list **head)
 {
-	static t_handle	*sewing;
-	char			*line;
-	int				break_line;
-	
-	if (fd < 0 || BUFFER_SIZE <= 0)
-		return (NULL);
-	break_line = 0;
-	while (break_line == 0)
-		if (get_hunk_of_line(&sewing, fd))
-			break_line = 1;
-	line = recreate_line(&sewing);
-	cheak_remain(t_handle(&sewing));
-	return (line);
+	t_list	*actual;
+
+	if (!head)
+		return (0);
+	actual = *head;
+	while (actual->next != NULL)
+		actual = actual->next;
+	while (actual->content[actual->len] != '\0')
+	{
+		actual->len++;
+		if (actual->content[actual->len] == '\n')
+			return (1);
+	}
+	actual->next = malloc(sizeof(t_list));
+	return (0);
 }

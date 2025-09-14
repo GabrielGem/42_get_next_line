@@ -3,66 +3,85 @@
 /*                                                        :::      ::::::::   */
 /*   get_next_line_utils.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gabrgarc <gabrgarc@42sp.org.br>            +#+  +:+       +#+        */
+/*   By: gabrgarc <gabrgarc@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/09/11 14:10:12 by gabrgarc          #+#    #+#             */
-/*   Updated: 2025/09/12 16:32:32 by gabrgarc         ###   ########.fr       */
+/*   Created: 2025/09/13 18:59:18 by gabrgarc          #+#    #+#             */
+/*   Updated: 2025/09/14 17:49:15 by gabrgarc         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-int	hunk_analysis(t_list *node)
+char	*get_line(t_list **head, char **line)
 {
-	int		i;
-	int		line_break;
+	t_list	*node;
+	int		len;
+	int		i_line;
 
-	i = 0;
-	line_break = 0;
-	while (node->content[i] != '\0' && line_break == 0)
+	node = *head;
+	while (node->next != NULL)
 	{
-		if (node->content[i] == '\n')
-		{
-			line_break = 1;
-			node->len = i + 1;
-		}
-		i++;
+		len += node->len;
+		node = node->next;
 	}
-	node->i += 1;
-	if (line_break == 1)
+	len += node->len;
+	*line = malloc((len + 1) * sizeof(char));
+	if (!line)
+		return (NULL);
+	(*line)[len] = '\0';
+	node = *head;
+	i_line = 0;
+	while (len--)
 	{
-		node->i -= 1;
-		return (1);
+		(*line)[i_line++] = node->content[node->i++];
+		if (node->content[node->i] == '\0')
+			node = node->next;
 	}
-	return (0);
+	(*line)[i_line] = '\n';
+	return (*line);
 }
 
-char	*recreate_line(t_handle **sewing)
+t_list	*check_remain(t_list **head)
 {
-	t_list	*temp;
-	char	*line;
-	int		i[2];
+	t_list	*tail;
+	t_list	*remain;
+	int		i;
+	int		len;
 
-	temp = (*sewing)->head;
-	while (temp->next != NULL)
+	tail = *head;
+	while (tail->next != NULL)
+		tail = tail->next;
+	if (!(tail->i + 1 < tail->read_bytes))
+		return (free_list(head));
+	remain = malloc(sizeof(t_list));
+	if (!remain)
+		free(remain);
+	len = tail->read_bytes - tail->i;
+	remain->content = malloc(len + 1 * sizeof(char));
+	if (!remain)
+		return (free_list(&remain));
+	remain->content[len] = '\0';
+	i = 0;
+	while (++tail->i < tail->read_bytes)
+		remain->content[i++] = tail->content[tail->i];
+	*head = free_list(head);
+	get_info_node(&remain);
+	return (remain);
+}
+
+void	*free_list(t_list **head)
+{
+	t_list	*aux;
+
+	aux = *head;
+	while (aux->next != NULL)
 	{
-		if (temp->i != 0)
-			(*sewing)->tail->len += temp->i * BUFFER_SIZE;
-		temp = temp->next;
+		(*head) = (*head)->next;
+		free(aux->content);
+		free(aux);
+		aux = *head;
 	}
-	line = malloc((*sewing)->tail->len + 1 * sizeof(char));
-	line[(*sewing)->tail->len] = '\0';
-	temp = (*sewing)->head;
-	i[0] = 0;
-	i[1] = 0;
-	while (temp->next != NULL)
-	{
-		line[i[0]++] = temp->content[i[1]++];
-		if (temp->content[i[1]] == '\0')
-		{
-			temp = temp->next;
-			i[1] = 0;
-		}
-	}
-	return (line);
+	free(aux->content);
+	free(aux);
+	return ((void *)0);
 }
