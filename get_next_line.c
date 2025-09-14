@@ -6,7 +6,7 @@
 /*   By: gabrgarc <gabrgarc@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/13 15:47:52 by gabrgarc          #+#    #+#             */
-/*   Updated: 2025/09/14 16:21:50 by gabrgarc         ###   ########.fr       */
+/*   Updated: 2025/09/14 18:54:49 by gabrgarc         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,9 @@ int	get_hunk_line(t_list **head, int fd)
 	t_list	*actual;
 
 	if (!*head)
-		*head = malloc(sizeof(t_list));
+		*head = init_node();
+	if ((*head)->len > (*head)->read_bytes)
+		return (0);
 	if (!*head)
 		return (1);
 	actual = *head;
@@ -66,12 +68,15 @@ ssize_t	get_info_node(t_list **head)
 	actual = *head;
 	while (actual->next != NULL)
 		actual = actual->next;
+	actual->len = 0;
 	while (actual->content[actual->len] != '\0')
 	{
 		actual->len++;
 		if (actual->content[actual->len] == '\n')
 			return (1);
 	}
-	actual->next = malloc(sizeof(t_list));
+	if (actual->len > actual->read_bytes)
+		actual->read_bytes = actual->len;
+	actual->next = init_node();
 	return (0);
 }

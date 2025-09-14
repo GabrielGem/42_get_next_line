@@ -6,7 +6,7 @@
 /*   By: gabrgarc <gabrgarc@42sp.org.br>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/28 11:39:03 by gabrgarc          #+#    #+#             */
-/*   Updated: 2025/09/14 16:20:42 by gabrgarc         ###   ########.fr       */
+/*   Updated: 2025/09/14 18:53:37 by gabrgarc         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,7 @@ int		get_hunk_line(t_list **head, int fd);
 ssize_t	get_info_node(t_list **node);
 char	*get_line(t_list **head, char **line);
 t_list	*check_remain(t_list **head);
+t_list	*init_node(void);
 void	*free_list(t_list **head);
 
 #endif

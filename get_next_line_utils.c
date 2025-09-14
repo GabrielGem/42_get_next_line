@@ -6,7 +6,7 @@
 /*   By: gabrgarc <gabrgarc@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/13 18:59:18 by gabrgarc          #+#    #+#             */
-/*   Updated: 2025/09/14 17:49:15 by gabrgarc         ###   ########.fr       */
+/*   Updated: 2025/09/14 18:56:18 by gabrgarc         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@ char	*get_line(t_list **head, char **line)
 	int		i_line;
 
 	node = *head;
+	len = 0;
 	while (node->next != NULL)
 	{
 		len += node->len;
@@ -53,7 +54,7 @@ t_list	*check_remain(t_list **head)
 		tail = tail->next;
 	if (!(tail->i + 1 < tail->read_bytes))
 		return (free_list(head));
-	remain = malloc(sizeof(t_list));
+	remain = init_node();
 	if (!remain)
 		free(remain);
 	len = tail->read_bytes - tail->i;
@@ -65,8 +66,23 @@ t_list	*check_remain(t_list **head)
 	while (++tail->i < tail->read_bytes)
 		remain->content[i++] = tail->content[tail->i];
 	*head = free_list(head);
-	get_info_node(&remain);
+	remain->len = i;
 	return (remain);
+}
+
+t_list	*init_node(void)
+{
+	t_list	*node;
+
+	node = malloc(sizeof(t_list));
+	if (!node)
+		return (NULL);
+	node->i = 0;
+	node->len = 0;
+	node->read_bytes = 0;
+	node->content = NULL;
+	node->next = NULL;
+	return (node);
 }
 
 void	*free_list(t_list **head)
