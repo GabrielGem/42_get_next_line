@@ -6,7 +6,7 @@
 /*   By: gabrgarc <gabrgarc@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/13 15:47:52 by gabrgarc          #+#    #+#             */
-/*   Updated: 2025/09/14 18:54:49 by gabrgarc         ###   ########.fr       */
+/*   Updated: 2025/09/16 20:31:37 by gabrgarc         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,18 +19,17 @@ char	*get_next_line(int fd)
 	int				break_line;
 
 	if (fd < 0 || BUFFER_SIZE <= 0)
-	{
-		free_list(&head);
 		return (NULL);
-	}
 	break_line = 0;
 	while (break_line == 0)
 	{
 		if (get_hunk_line(&head, fd))
-			free_list(&head);
+			return (free_list(&head));
+		if (last_node(&head)->read_bytes == 0)
+			return (NULL);
 		break_line = get_info_node(&head);
 	}
-	get_line(&head, &line);
+	get_line(&head, &line, 0);
 	if (!line)
 		return (free_list(&head));
 	head = check_remain(&head);
@@ -47,33 +46,33 @@ int	get_hunk_line(t_list **head, int fd)
 		return (0);
 	if (!*head)
 		return (1);
-	actual = *head;
-	while (actual->next != NULL)
-		actual = actual->next;
+	actual = last_node(head);
 	actual->content = malloc((BUFFER_SIZE + 1) * sizeof(char));
 	if (!actual->content)
 		return (1);
 	actual->read_bytes = read(fd, actual->content, BUFFER_SIZE);
+	if (actual->read_bytes >= 0)
+		actual->content[actual->read_bytes] = '\0';
 	if (actual->read_bytes < 0)
 		return (1);
 	return (0);
 }
 
-ssize_t	get_info_node(t_list **head)
+int	get_info_node(t_list **head)
 {
 	t_list	*actual;
 
 	if (!head)
 		return (0);
-	actual = *head;
-	while (actual->next != NULL)
-		actual = actual->next;
+	actual = last_node(head);
 	actual->len = 0;
 	while (actual->content[actual->len] != '\0')
 	{
+		if (actual->content[actual->len] == '\n'
+			|| ((actual->content[actual->len] == 0)
+				&& (actual->len < actual->read_bytes)))
+			return (++actual->len);
 		actual->len++;
-		if (actual->content[actual->len] == '\n')
-			return (1);
 	}
 	if (actual->len > actual->read_bytes)
 		actual->read_bytes = actual->len;
