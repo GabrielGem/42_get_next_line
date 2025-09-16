@@ -6,39 +6,37 @@
 /*   By: gabrgarc <gabrgarc@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/13 18:59:18 by gabrgarc          #+#    #+#             */
-/*   Updated: 2025/09/14 18:56:18 by gabrgarc         ###   ########.fr       */
+/*   Updated: 2025/09/16 20:19:24 by gabrgarc         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-char	*get_line(t_list **head, char **line)
+char	*get_line(t_list **head, char **line, int i_line)
 {
 	t_list	*node;
 	int		len;
-	int		i_line;
 
 	node = *head;
 	len = 0;
-	while (node->next != NULL)
+	while (node)
 	{
 		len += node->len;
 		node = node->next;
 	}
-	len += node->len;
 	*line = malloc((len + 1) * sizeof(char));
 	if (!line)
 		return (NULL);
 	(*line)[len] = '\0';
 	node = *head;
-	i_line = 0;
 	while (len--)
 	{
 		(*line)[i_line++] = node->content[node->i++];
 		if (node->content[node->i] == '\0')
 			node = node->next;
+		if (node && node->content[node->i] == 0 && node->i == node->read_bytes)
+			return (NULL);
 	}
-	(*line)[i_line] = '\n';
 	return (*line);
 }
 
@@ -49,9 +47,7 @@ t_list	*check_remain(t_list **head)
 	int		i;
 	int		len;
 
-	tail = *head;
-	while (tail->next != NULL)
-		tail = tail->next;
+	tail = last_node(head);
 	if (!(tail->i + 1 < tail->read_bytes))
 		return (free_list(head));
 	remain = init_node();
@@ -85,19 +81,28 @@ t_list	*init_node(void)
 	return (node);
 }
 
-void	*free_list(t_list **head)
+t_list	*last_node(t_list **head)
 {
 	t_list	*aux;
 
 	aux = *head;
 	while (aux->next != NULL)
+		aux = aux->next;
+	return (aux);
+}
+
+void	*free_list(t_list **head)
+{
+	t_list	*aux;
+
+	aux = *head;
+	while (aux != NULL)
 	{
-		(*head) = (*head)->next;
-		free(aux->content);
+		if (aux->content)
+			free(aux->content);
+		*head = aux->next;
 		free(aux);
 		aux = *head;
 	}
-	free(aux->content);
-	free(aux);
 	return ((void *)0);
 }
