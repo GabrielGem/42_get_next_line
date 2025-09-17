@@ -6,13 +6,13 @@
 /*   By: gabrgarc <gabrgarc@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/13 18:59:18 by gabrgarc          #+#    #+#             */
-/*   Updated: 2025/09/16 20:19:24 by gabrgarc         ###   ########.fr       */
+/*   Updated: 2025/09/17 20:10:57 by gabrgarc         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-char	*get_line(t_list **head, char **line, int i_line)
+char	*join_line(t_list **head, char **line, int i_line)
 {
 	t_list	*node;
 	int		len;
@@ -25,7 +25,7 @@ char	*get_line(t_list **head, char **line, int i_line)
 		node = node->next;
 	}
 	*line = malloc((len + 1) * sizeof(char));
-	if (!line)
+	if (!*line)
 		return (NULL);
 	(*line)[len] = '\0';
 	node = *head;
@@ -48,7 +48,7 @@ t_list	*check_remain(t_list **head)
 	int		len;
 
 	tail = last_node(head);
-	if (!(tail->i + 1 < tail->read_bytes))
+	if (!(tail->i + 1 <= tail->read_bytes))
 		return (free_list(head));
 	remain = init_node();
 	if (!remain)
@@ -58,11 +58,11 @@ t_list	*check_remain(t_list **head)
 	if (!remain)
 		return (free_list(&remain));
 	remain->content[len] = '\0';
+	remain->read_bytes = tail->read_bytes - tail->len;
 	i = 0;
-	while (++tail->i < tail->read_bytes)
-		remain->content[i++] = tail->content[tail->i];
-	*head = free_list(head);
-	remain->len = i;
+	while (len--)
+		remain->content[i++] = tail->content[tail->i++];
+	free_list(head);
 	return (remain);
 }
 
@@ -86,7 +86,7 @@ t_list	*last_node(t_list **head)
 	t_list	*aux;
 
 	aux = *head;
-	while (aux->next != NULL)
+	while ((aux->read_bytes != 0) && (aux->next != NULL))
 		aux = aux->next;
 	return (aux);
 }
