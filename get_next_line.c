@@ -6,7 +6,7 @@
 /*   By: gabrgarc <gabrgarc@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/13 15:47:52 by gabrgarc          #+#    #+#             */
-/*   Updated: 2025/09/16 20:31:37 by gabrgarc         ###   ########.fr       */
+/*   Updated: 2025/09/17 19:33:23 by gabrgarc         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 char	*get_next_line(int fd)
 {
-	static t_list	*head;
+	static t_list	*head = NULL;
 	char			*line;
 	int				break_line;
 
@@ -25,11 +25,14 @@ char	*get_next_line(int fd)
 	{
 		if (get_hunk_line(&head, fd))
 			return (free_list(&head));
-		if (last_node(&head)->read_bytes == 0)
-			return (NULL);
+		if (last_node(&head)->content[0] == 0)
+			break ;
 		break_line = get_info_node(&head);
 	}
-	get_line(&head, &line, 0);
+	line = NULL;
+	if (!head->read_bytes)
+		return (free_list(&head));
+	join_line(&head, &line, 0);
 	if (!line)
 		return (free_list(&head));
 	head = check_remain(&head);
@@ -42,19 +45,18 @@ int	get_hunk_line(t_list **head, int fd)
 
 	if (!*head)
 		*head = init_node();
-	if ((*head)->len > (*head)->read_bytes)
-		return (0);
 	if (!*head)
 		return (1);
+	if ((*head)->len != (*head)->read_bytes)
+		return (0);
 	actual = last_node(head);
 	actual->content = malloc((BUFFER_SIZE + 1) * sizeof(char));
 	if (!actual->content)
 		return (1);
 	actual->read_bytes = read(fd, actual->content, BUFFER_SIZE);
-	if (actual->read_bytes >= 0)
-		actual->content[actual->read_bytes] = '\0';
 	if (actual->read_bytes < 0)
 		return (1);
+	actual->content[actual->read_bytes] = '\0';
 	return (0);
 }
 
@@ -65,6 +67,8 @@ int	get_info_node(t_list **head)
 	if (!head)
 		return (0);
 	actual = last_node(head);
+	if (actual->content[0] == 0)
+		return (++actual->len);
 	actual->len = 0;
 	while (actual->content[actual->len] != '\0')
 	{
@@ -76,6 +80,8 @@ int	get_info_node(t_list **head)
 	}
 	if (actual->len > actual->read_bytes)
 		actual->read_bytes = actual->len;
+	if (actual->read_bytes < BUFFER_SIZE)
+		return (1);
 	actual->next = init_node();
 	return (0);
 }
