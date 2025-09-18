@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   get_next_line_utils.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gabrgarc <gabrgarc@student.42sp.org.br>    +#+  +:+       +#+        */
+/*   By: gabrgarc <gabrgarc@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/13 18:59:18 by gabrgarc          #+#    #+#             */
-/*   Updated: 2025/09/17 20:10:57 by gabrgarc         ###   ########.fr       */
+/*   Updated: 2025/09/18 12:13:22 by gabrgarc         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,5 +104,5 @@ void	*free_list(t_list **head)
 		free(aux);
 		aux = *head;
 	}
-	return ((void *)0);
+	return (NULL);
 }
