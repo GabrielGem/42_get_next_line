@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   get_next_line.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gabrgarc <gabrgarc@student.42sp.org.br>    +#+  +:+       +#+        */
+/*   By: gabrgarc <gabrgarc@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/13 15:47:52 by gabrgarc          #+#    #+#             */
-/*   Updated: 2025/09/17 19:33:23 by gabrgarc         ###   ########.fr       */
+/*   Updated: 2025/09/18 12:18:19 by gabrgarc         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,8 +80,6 @@ int	get_info_node(t_list **head)
 	}
 	if (actual->len > actual->read_bytes)
 		actual->read_bytes = actual->len;
-	if (actual->read_bytes < BUFFER_SIZE)
-		return (1);
 	actual->next = init_node();
 	return (0);
 }
