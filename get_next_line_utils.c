@@ -6,7 +6,7 @@
 /*   By: gabrgarc <gabrgarc@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/13 18:59:18 by gabrgarc          #+#    #+#             */
-/*   Updated: 2025/09/18 12:13:22 by gabrgarc         ###   ########.fr       */
+/*   Updated: 2025/09/18 17:16:17 by gabrgarc         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,11 +52,13 @@ t_list	*check_remain(t_list **head)
 		return (free_list(head));
 	remain = init_node();
 	if (!remain)
-		free(remain);
+		return (free_list(head));
 	len = tail->read_bytes - tail->i;
 	remain->content = malloc(len + 1 * sizeof(char));
-	if (!remain)
-		return (free_list(&remain));
+	if (!remain->content)
+		free(remain);
+	if (!remain->content)
+		return (free_list(head));
 	remain->content[len] = '\0';
 	remain->read_bytes = tail->read_bytes - tail->len;
 	i = 0;
