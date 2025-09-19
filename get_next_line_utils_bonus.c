@@ -6,11 +6,11 @@
 /*   By: gabrgarc <gabrgarc@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/13 18:59:18 by gabrgarc          #+#    #+#             */
-/*   Updated: 2025/09/18 17:50:25 by gabrgarc         ###   ########.fr       */
+/*   Updated: 2025/09/18 22:43:36 by gabrgarc         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "get_next_line.h"
+#include "get_next_line_bonus.h"
 
 char	*join_line(t_list **head, char **line, int i_line)
 {
